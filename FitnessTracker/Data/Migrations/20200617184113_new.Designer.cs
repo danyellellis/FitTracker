@@ -4,18 +4,20 @@ using FitnessTracker.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FitnessTracker.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200617184113_new")]
+    partial class @new
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.5")
+                .HasAnnotation("ProductVersion", "3.1.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -48,24 +50,10 @@ namespace FitnessTracker.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "ba9797a3-1148-4a09-9268-5cc3b43fbbc9",
-                            ConcurrencyStamp = "d9974e1c-bfa2-4e15-b839-55270fe8a07b",
+                            Id = "47973a81-534e-4b5a-b582-10aeb013f20d",
+                            ConcurrencyStamp = "86b095b1-ca6e-4ae2-8693-86d760f2b180",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = "d57a1ad9-d7f1-430f-98a6-b3a1263d0c01",
-                            ConcurrencyStamp = "c47027c8-8ec1-48f5-844b-1da965a32a98",
-                            Name = "Client",
-                            NormalizedName = "CLIENT"
-                        },
-                        new
-                        {
-                            Id = "2f2ede7e-d6fb-4a9d-ac8b-56a73e0a6d1e",
-                            ConcurrencyStamp = "7fa477b3-f5c0-4462-83d9-1d23b3282917",
-                            Name = "Coach",
-                            NormalizedName = "COACH"
                         });
                 });
 
