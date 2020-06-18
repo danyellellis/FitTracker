@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using FitnessTracker.Data;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using FitnessTracker.Data;
+using FitnessTracker.Models;
 
 namespace FitnessTracker.Controllers
 {
@@ -18,96 +19,142 @@ namespace FitnessTracker.Controllers
             _context = context;
         }
 
-
-        // GET: Client
-        public IActionResult Index()
+        // GET: Clients
+        public async Task<IActionResult> Index()
         {
-            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var client = _context.Client.Where(c => c.IdentityUserId == userId).FirstOrDefault();
+            var applicationDbContext = _context.Clients.Include(c => c.IdentityUser);
+            return View(await applicationDbContext.ToListAsync());
+        }
+
+        // GET: Clients/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var client = await _context.Clients
+                .Include(c => c.IdentityUser)
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (client == null)
             {
-                return View("Create");
+                return NotFound();
             }
-            else
-            {
-                return View("Details", client);
-            }
-           
+
+            return View(client);
         }
 
-        // GET: Client/Details/5
-        public ActionResult Details(int id)
+        // GET: Clients/Create
+        public IActionResult Create()
         {
+            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id");
             return View();
         }
 
-        // GET: Client/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Client/Create
+        // POST: Clients/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create([Bind("Id,Name,Address,City,State,Height,Weight,WeightGoals,IdentityUserId")] Client client)
         {
-            try
+            if (ModelState.IsValid)
             {
-                // TODO: Add insert logic here
-
+                _context.Add(client);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", client.IdentityUserId);
+            return View(client);
         }
 
-        // GET: Client/Edit/5
-        public ActionResult Edit(int id)
+        // GET: Clients/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var client = await _context.Clients.FindAsync(id);
+            if (client == null)
+            {
+                return NotFound();
+            }
+            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", client.IdentityUserId);
+            return View(client);
         }
 
-        // POST: Client/Edit/5
+        // POST: Clients/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address,City,State,Height,Weight,WeightGoals,IdentityUserId")] Client client)
         {
-            try
+            if (id != client.Id)
             {
-                // TODO: Add update logic here
+                return NotFound();
+            }
 
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(client);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ClientExists(client.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", client.IdentityUserId);
+            return View(client);
         }
 
-        // GET: Client/Delete/5
-        public ActionResult Delete(int id)
+        // GET: Clients/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var client = await _context.Clients
+                .Include(c => c.IdentityUser)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (client == null)
+            {
+                return NotFound();
+            }
+
+            return View(client);
         }
 
-        // POST: Client/Delete/5
-        [HttpPost]
+        // POST: Clients/Delete/5
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            try
-            {
-                // TODO: Add delete logic here
+            var client = await _context.Clients.FindAsync(id);
+            _context.Clients.Remove(client);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+        private bool ClientExists(int id)
+        {
+            return _context.Clients.Any(e => e.Id == id);
         }
     }
 }

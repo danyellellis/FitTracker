@@ -23,12 +23,12 @@ namespace FitnessTracker.ActionFilters
             { 
                 if (_claimsPrincipal.IsInRole("Client"))
                 { 
-                    context.Result = new RedirectToActionResult("Index", "Client", null); 
+                    context.Result = new RedirectToActionResult("Index", "Clients", null); 
                 } 
                 else if (_claimsPrincipal.IsInRole("Coach")) 
                 { 
                     context.Result = new RedirectToActionResult("Index",
-                        "Coach", null);
+                        "Coaches", null);
                 } 
             } 
         }
