@@ -10,6 +10,7 @@ namespace FitnessTracker.Models
 {
     public class Coach
     {
+        [Key]
         public int Id { get; set; }
         [Display(Name = "Coach Name")]
         public string Name { get; set; }

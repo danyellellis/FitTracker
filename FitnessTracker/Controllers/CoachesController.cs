@@ -7,27 +7,27 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FitnessTracker.Controllers
 {
-    public class ClientController : Controller
+    public class CoachesController : Controller
     {
-        // GET: Client
+        // GET: Coach
         public ActionResult Index()
         {
             return View();
         }
 
-        // GET: Client/Details/5
+        // GET: Coach/Details/5
         public ActionResult Details(int id)
         {
             return View();
         }
 
-        // GET: Client/Create
+        // GET: Coach/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: Client/Create
+        // POST: Coach/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(IFormCollection collection)
@@ -44,13 +44,13 @@ namespace FitnessTracker.Controllers
             }
         }
 
-        // GET: Client/Edit/5
+        // GET: Coach/Edit/5
         public ActionResult Edit(int id)
         {
             return View();
         }
 
-        // POST: Client/Edit/5
+        // POST: Coach/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, IFormCollection collection)
@@ -67,13 +67,13 @@ namespace FitnessTracker.Controllers
             }
         }
 
-        // GET: Client/Delete/5
+        // GET: Coach/Delete/5
         public ActionResult Delete(int id)
         {
             return View();
         }
 
-        // POST: Client/Delete/5
+        // POST: Coach/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)
