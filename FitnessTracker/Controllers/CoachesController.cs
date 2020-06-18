@@ -2,92 +2,159 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using FitnessTracker.Data;
+using FitnessTracker.Models;
 
 namespace FitnessTracker.Controllers
 {
     public class CoachesController : Controller
     {
-        // GET: Coach
-        public ActionResult Index()
+        private readonly ApplicationDbContext _context;
+
+        public CoachesController(ApplicationDbContext context)
         {
+            _context = context;
+        }
+
+        // GET: Coaches
+        public async Task<IActionResult> Index()
+        {
+            var applicationDbContext = _context.Coaches.Include(c => c.IdentityUser);
+            return View(await applicationDbContext.ToListAsync());
+        }
+
+        // GET: Coaches/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var coach = await _context.Coaches
+                .Include(c => c.IdentityUser)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (coach == null)
+            {
+                return NotFound();
+            }
+
+            return View(coach);
+        }
+
+        // GET: Coaches/Create
+        public IActionResult Create()
+        {
+            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id");
             return View();
         }
 
-        // GET: Coach/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: Coach/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Coach/Create
+        // POST: Coaches/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create([Bind("Id,Name,IdentityUserId")] Coach coach)
         {
-            try
+            if (ModelState.IsValid)
             {
-                // TODO: Add insert logic here
-
+                _context.Add(coach);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", coach.IdentityUserId);
+            return View(coach);
         }
 
-        // GET: Coach/Edit/5
-        public ActionResult Edit(int id)
+        // GET: Coaches/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var coach = await _context.Coaches.FindAsync(id);
+            if (coach == null)
+            {
+                return NotFound();
+            }
+            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", coach.IdentityUserId);
+            return View(coach);
         }
 
-        // POST: Coach/Edit/5
+        // POST: Coaches/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,IdentityUserId")] Coach coach)
         {
-            try
+            if (id != coach.Id)
             {
-                // TODO: Add update logic here
+                return NotFound();
+            }
 
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(coach);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CoachExists(coach.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", coach.IdentityUserId);
+            return View(coach);
         }
 
-        // GET: Coach/Delete/5
-        public ActionResult Delete(int id)
+        // GET: Coaches/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var coach = await _context.Coaches
+                .Include(c => c.IdentityUser)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (coach == null)
+            {
+                return NotFound();
+            }
+
+            return View(coach);
         }
 
-        // POST: Coach/Delete/5
-        [HttpPost]
+        // POST: Coaches/Delete/5
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            try
-            {
-                // TODO: Add delete logic here
+            var coach = await _context.Coaches.FindAsync(id);
+            _context.Coaches.Remove(coach);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+        private bool CoachExists(int id)
+        {
+            return _context.Coaches.Any(e => e.Id == id);
         }
     }
 }

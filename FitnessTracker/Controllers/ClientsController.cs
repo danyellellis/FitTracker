@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FitnessTracker.Data;
 using FitnessTracker.Models;
+using System.Security.Claims;
 
 namespace FitnessTracker.Controllers
 {
@@ -20,10 +21,18 @@ namespace FitnessTracker.Controllers
         }
 
         // GET: Clients
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var applicationDbContext = _context.Clients.Include(c => c.IdentityUser);
-            return View(await applicationDbContext.ToListAsync());
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var client = _context.Clients.Where(c => c.IdentityUserId == userId).FirstOrDefault();
+            if (client == null)
+            {
+                return View("Create");             
+            }
+            else
+            {
+                return View("Details", client);
+            }
         }
 
         // GET: Clients/Details/5
@@ -48,8 +57,9 @@ namespace FitnessTracker.Controllers
         // GET: Clients/Create
         public IActionResult Create()
         {
+            Client client = new Client();
             ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
+            return View(client);
         }
 
         // POST: Clients/Create
@@ -59,14 +69,11 @@ namespace FitnessTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Address,City,State,Height,Weight,WeightGoals,IdentityUserId")] Client client)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(client);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", client.IdentityUserId);
-            return View(client);
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            client.IdentityUserId = userId;
+            _context.Clients.Add(client);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Clients/Edit/5
